@@ -6,6 +6,7 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -38,16 +39,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .failureHandler(myAuthenticationFailureHandler)
             .and()
                 .authorizeRequests()
-                .antMatchers("/login.html", "/login").permitAll()  // 不需要通过验证就能访问
-                .antMatchers("/", "/biz1", "/biz2")  // 资源路径匹配
-                    .hasAnyAuthority("ROLE_user", "ROLE_admin")  // 有权限就可以访问
-//                .antMatchers("/syslog", "/sysuser")
-//                    .hasRole("admin")  // 有角色就可以访问
-                .antMatchers("/syslog").hasAuthority("sys:log")
-                .antMatchers("/sysuser").hasAuthority("sys:user")  // 对应下面authorities
-            // 觉得是一种特殊的权限，等价，Role_是固定前缀，连起来表示id，hasRole里面的名字表示名字，ROLE_admin == admin
-            .anyRequest()  // 任何请求
-            .authenticated();  // 请求需要登录认证才能访问
+                    .antMatchers("/login.html", "/login").permitAll()  // 不需要通过验证就能访问
+                    .antMatchers("/", "/biz1", "/biz2")  // 资源路径匹配
+                        .hasAnyAuthority("ROLE_user", "ROLE_admin")  // 有权限就可以访问
+    //                .antMatchers("/syslog", "/sysuser")
+    //                    .hasRole("admin")  // 有角色就可以访问
+                    .antMatchers("/syslog").hasAuthority("sys:log")
+                    .antMatchers("/sysuser").hasAuthority("sys:user")  // 对应下面authorities
+                // 觉得是一种特殊的权限，等价，Role_是固定前缀，连起来表示id，hasRole里面的名字表示名字，ROLE_admin == admin
+                .anyRequest()  // 任何请求
+                .authenticated()  // 请求需要登录认证才能访问
+            .and()
+                .sessionManagement()
+                    .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)  // IF_REQUIRED表示需要再生成，
+                                                                        // STATELESS表示无状态的，也就是前后端分离
+//                    .invalidSessionUrl("/invalidSession.html")  // 当session到期后跳转的页面
+                    .sessionFixation().migrateSession()  // session保护：默认在每一次登录后更换一个新的sessionID并且迁移旧session的属性
+                ;
     }
 
     @Override
