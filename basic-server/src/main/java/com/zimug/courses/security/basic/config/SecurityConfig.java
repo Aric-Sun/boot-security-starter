@@ -54,7 +54,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)  // IF_REQUIRED表示需要再生成，
                                                                         // STATELESS表示无状态的，也就是前后端分离
 //                    .invalidSessionUrl("/invalidSession.html")  // 当session到期后跳转的页面
-                    .sessionFixation().migrateSession()  // session保护：默认在每一次登录后更换一个新的sessionID并且迁移旧session的属性
+                    .sessionFixation().migrateSession()  // session固化保护：默认在每一次登录后更换一个新的sessionID并且迁移旧session的属性
+                    .maximumSessions(1)  // 最大登录数
+                    .maxSessionsPreventsLogin(false)  // true表示已经登录就不予许再次登录，false表示允许再次登录但是之前的登录账户会被踢下线
+                    .expiredSessionStrategy(new CustomExpiredSessionStrategy())  // session超时的处理策略，可自定义
                 ;
     }
 
