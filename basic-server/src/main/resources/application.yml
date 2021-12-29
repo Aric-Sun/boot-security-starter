@@ -2,7 +2,8 @@ server:
   port: 8888
 
 spring:
-#  security:
+  security:
+    loginType: JSON
 #    user:
 #      name: admin
 #      password: admin

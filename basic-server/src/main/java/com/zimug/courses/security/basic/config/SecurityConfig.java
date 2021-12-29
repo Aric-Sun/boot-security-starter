@@ -9,12 +9,21 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import javax.annotation.Resource;
+
 /**
  * @author AricSun
  * @date 2021.12.28 16:11
  */
 @Configuration
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
+
+    @Resource
+    private MyAuthenticationSuccessHandler myAuthenticationSuccessHandler;
+
+    @Resource
+    private MyAuthenticationFailureHandler myAuthenticationFailureHandler;
+
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http.csrf().disable()  // 暂时关闭跨站攻击防御
@@ -23,7 +32,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .loginProcessingUrl("/login")  // 表示登录表格的action指向
                 .usernameParameter("username")
                 .passwordParameter("password")  // 这两个是表单的输入框的名字name
-                .defaultSuccessUrl("/")  // 登录成功后去往何处
+//                .defaultSuccessUrl("/")  // 登录成功后去往何处
+//                .failureUrl("/login.html")
+                .successHandler(myAuthenticationSuccessHandler)
+                .failureHandler(myAuthenticationFailureHandler)
             .and()
                 .authorizeRequests()
                 .antMatchers("/login.html", "/login").permitAll()  // 不需要通过验证就能访问
