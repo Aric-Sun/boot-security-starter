@@ -2,10 +2,10 @@ server:
   port: 8888
 
 spring:
-  security:
-    user:
-      name: admin
-      password: admin
+#  security:
+#    user:
+#      name: admin
+#      password: admin
   datasource:
     url: jdbc:mysql:///demo2?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
     username: root

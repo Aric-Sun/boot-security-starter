@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class BizpageController {
 
     // 登录
-    @PostMapping("/login")
-    public String index(String username,String password) {
-        return "index";
-    }
+//    @PostMapping("/login")
+//    public String index(String username,String password) {
+//        return "index";
+//    }
 
     // 日志管理
     @GetMapping("/syslog")
