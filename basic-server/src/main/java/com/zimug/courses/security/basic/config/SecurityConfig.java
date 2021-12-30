@@ -1,5 +1,6 @@
 package com.zimug.courses.security.basic.config;
 
+import com.zimug.courses.security.basic.service.MyUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -21,9 +22,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Resource
     private MyAuthenticationSuccessHandler myAuthenticationSuccessHandler;
-
     @Resource
     private MyAuthenticationFailureHandler myAuthenticationFailureHandler;
+    @Resource
+    private MyUserDetailsService myUserDetailsService;
+
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -41,11 +44,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .authorizeRequests()
                     .antMatchers("/login.html", "/login").permitAll()  // 不需要通过验证就能访问
                     .antMatchers("/", "/biz1", "/biz2")  // 资源路径匹配
-                        .hasAnyAuthority("ROLE_user", "ROLE_admin")  // 有权限就可以访问
+                        .hasAnyAuthority("ROLE_user", "ROLE_admin")  // 有权限就可以访问  // user的权限是common，和这个不匹配，所以user用户啥也访问不了
     //                .antMatchers("/syslog", "/sysuser")
     //                    .hasRole("admin")  // 有角色就可以访问
-                    .antMatchers("/syslog").hasAuthority("sys:log")
-                    .antMatchers("/sysuser").hasAuthority("sys:user")  // 对应下面authorities
+                    .antMatchers("/syslog").hasAuthority("/syslog")
+                    .antMatchers("/sysuser").hasAuthority("/sysuser")  // 对应下面authorities
                 // 觉得是一种特殊的权限，等价，Role_是固定前缀，连起来表示id，hasRole里面的名字表示名字，ROLE_admin == admin
                 .anyRequest()  // 任何请求
                 .authenticated()  // 请求需要登录认证才能访问
@@ -57,13 +60,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .sessionFixation().migrateSession()  // session固化保护：默认在每一次登录后更换一个新的sessionID并且迁移旧session的属性
                     .maximumSessions(1)  // 最大登录数
                     .maxSessionsPreventsLogin(false)  // true表示已经登录就不予许再次登录，false表示允许再次登录但是之前的登录账户会被踢下线
-                    .expiredSessionStrategy(new CustomExpiredSessionStrategy())  // session超时的处理策略，可自定义
-                ;
+                    .expiredSessionStrategy(new CustomExpiredSessionStrategy());  // session超时的处理策略，可自定义
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth.inMemoryAuthentication()
+        auth/*.inMemoryAuthentication()
                 .withUser("user")
                 .password(passwordEncoder().encode("123456"))
                 .roles("user")
@@ -71,8 +73,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .withUser("admin")
                 .password(passwordEncoder().encode("123456"))
 //                .roles("admin")  // 对应上面hasRole
-                .authorities("sys:log", "sys:user")  // 对应上面hasAuthority
-            .and()
+                .authorities("sys:log", "sys:user")  // 对应上面hasAuthority*/
+                .userDetailsService(myUserDetailsService)  // 从数据库动态加载
                 .passwordEncoder(passwordEncoder());  // 因为调用了bcrypt的加密，所以要告诉他怎么解密，会自动调用matches
     }
 
