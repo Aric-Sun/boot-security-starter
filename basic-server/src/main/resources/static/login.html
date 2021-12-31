@@ -11,12 +11,14 @@
     <span>用户名称</span><input type="text" name="username" id="username" /> <br>
     <span>用户密码</span><input type="password" name="password" id="password"/> <br>
     <input type="button" onclick="login()" value="登录">
+    <label><input type="checkbox" name="remember-me" id="remember-me"/>记住密码</label>
 </form>
 
 <script type="text/javascript">
     function login(){
         var username = $("#username").val();
         var password = $("#password").val();
+        var rememberMe = $("#remember-me").is(":checked");
         if (username === "" || password === ""){
             alert("用户名或密码不能为空！");
             return;
@@ -26,7 +28,8 @@
             url: "/login",
             data: {
                 "username": username, // 这里的参数名称要和Spring Security接收时设置的一样
-                "password": password
+                "password": password,
+                "remember-me-new": rememberMe
             },
             success: function (json){
                 if (json.isok){

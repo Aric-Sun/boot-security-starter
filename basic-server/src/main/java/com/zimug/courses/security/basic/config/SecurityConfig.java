@@ -11,8 +11,11 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.rememberme.JdbcTokenRepositoryImpl;
+import org.springframework.security.web.authentication.rememberme.PersistentTokenRepository;
 
 import javax.annotation.Resource;
+import javax.sql.DataSource;
 
 /**
  * @author AricSun
@@ -57,6 +60,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // 觉得是一种特殊的权限，等价，Role_是固定前缀，连起来表示id，hasRole里面的名字表示名字，ROLE_admin == admin
                 .anyRequest()  // 任何请求
                 .authenticated()  // 请求需要登录认证才能访问*/
+            .and().rememberMe()  // 记住我，xx天内免登录
+                .rememberMeParameter("remember-me-new")  // 表示前端传来的key值得是这个
+                .rememberMeCookieName("remember-me-cookie")  // 表示在cookie中的key值
+                .tokenValiditySeconds(2 * 24 * 60 * 60)  // 两天
+                .tokenRepository(persistentTokenRepository())  // 表示“记住我”相关的token都需要通过persistentTokenRepository来进行操作（存取）
             .and()
                 .sessionManagement()
                     .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)  // IF_REQUIRED表示需要再生成，
@@ -93,5 +101,17 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         // 将项目中静态资源路径开放出来
         web.ignoring().antMatchers("/css/**", "/fonts/**", "/img/**", "/js/**");
         // ignoring 表示所有指定的路径都不会经过过滤器，直接被放行
+    }
+
+    @Resource
+    private DataSource dataSource;  // 如果默认名字是dataSource的话，那么就是指代的application.yml的数据源
+
+    // Token 存储工具，用来RememberMe的服务器端session->持久化
+    @Bean
+    public PersistentTokenRepository persistentTokenRepository(){
+        JdbcTokenRepositoryImpl tokenRepository = new JdbcTokenRepositoryImpl();
+        // 查看JdbcTokenRepositoryImpl源码可知，/resources/dbsql/persistent_logins.sql里面的字段都是固定的，不能更改
+        tokenRepository.setDataSource(dataSource);
+        return tokenRepository;
     }
 }
