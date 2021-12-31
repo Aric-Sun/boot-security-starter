@@ -43,7 +43,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             .and()
                 .authorizeRequests()
                     .antMatchers("/login.html", "/login").permitAll()  // 不需要通过验证就能访问
-                    .antMatchers("/", "/biz1", "/biz2")  // 资源路径匹配
+                    .anyRequest().access("@rbacService.hasPermission(request, authentication)")
+                                                // 任何资源都要使用access中的表达式进行校验, 使用SpEL表达式
+                    /*.antMatchers("/", "/biz1", "/biz2")  // 资源路径匹配
                         .hasAnyAuthority("ROLE_user", "ROLE_admin")  // 有权限就可以访问  // user的权限是common，和这个不匹配，所以user用户啥也访问不了
     //                .antMatchers("/syslog", "/sysuser")
     //                    .hasRole("admin")  // 有角色就可以访问
@@ -51,7 +53,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers("/sysuser").hasAuthority("/sysuser")  // 对应下面authorities
                 // 觉得是一种特殊的权限，等价，Role_是固定前缀，连起来表示id，hasRole里面的名字表示名字，ROLE_admin == admin
                 .anyRequest()  // 任何请求
-                .authenticated()  // 请求需要登录认证才能访问
+                .authenticated()  // 请求需要登录认证才能访问*/
             .and()
                 .sessionManagement()
                     .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)  // IF_REQUIRED表示需要再生成，
