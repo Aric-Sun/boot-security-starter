@@ -4,6 +4,7 @@ import com.zimug.courses.security.basic.service.MyUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -18,6 +19,7 @@ import javax.annotation.Resource;
  * @date 2021.12.28 16:11
  */
 @Configuration
+@EnableGlobalMethodSecurity(prePostEnabled = true)  // 使得pre/post+Authority/Filter生效
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Resource
@@ -45,6 +47,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                     .antMatchers("/login.html", "/login").permitAll()  // 不需要通过验证就能访问
                     .anyRequest().access("@rbacService.hasPermission(request, authentication)")
                                                 // 任何资源都要使用access中的表达式进行校验, 使用SpEL表达式
+                                                // request 和 authentication是常见的内置表达式
                     /*.antMatchers("/", "/biz1", "/biz2")  // 资源路径匹配
                         .hasAnyAuthority("ROLE_user", "ROLE_admin")  // 有权限就可以访问  // user的权限是common，和这个不匹配，所以user用户啥也访问不了
     //                .antMatchers("/syslog", "/sysuser")
