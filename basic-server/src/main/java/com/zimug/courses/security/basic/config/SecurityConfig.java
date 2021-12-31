@@ -31,7 +31,8 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private MyAuthenticationFailureHandler myAuthenticationFailureHandler;
     @Resource
     private MyUserDetailsService myUserDetailsService;
-
+    @Resource
+    private MyLogoutSuccessHandler myLogoutSuccessHandler;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -60,6 +61,11 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 // 觉得是一种特殊的权限，等价，Role_是固定前缀，连起来表示id，hasRole里面的名字表示名字，ROLE_admin == admin
                 .anyRequest()  // 任何请求
                 .authenticated()  // 请求需要登录认证才能访问*/
+            .and().logout()  // 实现退出登录的功能
+                .logoutUrl("/signOut")  // 指定退出的url，默认/logout
+//                .logoutSuccessUrl("/login.html")  // 指定推出成功后的跳转页面, 默认.loginPage的值
+                .deleteCookies("JSESSIONID")  // 删除指定的cookie
+                .logoutSuccessHandler(myLogoutSuccessHandler)  // 自定义退出处理逻辑  // 和logoutSuccessUrl冲突
             .and().rememberMe()  // 记住我，xx天内免登录
                 .rememberMeParameter("remember-me-new")  // 表示前端传来的key值得是这个
                 .rememberMeCookieName("remember-me-cookie")  // 表示在cookie中的key值
