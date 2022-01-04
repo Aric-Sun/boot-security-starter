@@ -51,7 +51,7 @@ public class MyUserDetailsService implements UserDetailsService {
         myUserDetails.setAuthorities(
                 // 官方工具类，从逗号分隔的字符串表示形式创建一个 GrantedAuthority 对象数组。
                 AuthorityUtils.commaSeparatedStringToAuthorityList(
-                        // 以逗号为分界，将序列的所有匀速拼成一个字符串
+                        // 以逗号为分界，将序列的所有元素拼成一个字符串
                         // 第二个参数需要实现Iterable接口，元素为字符串
                         String.join(",", authorities)
         ));
